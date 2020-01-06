@@ -1,0 +1,9 @@
+@import (reference) "../../../../style/variables.less";
+
+#library {
+    // todo styles reinmachen
+}
+
+.ekSelected {
+    color: blue();
+}
