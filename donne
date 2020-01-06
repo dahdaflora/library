@@ -1,0 +1,18 @@
+Damit das testen usw. etwas bequemer geht, bietet es sich an, dafür zu sorgen, dass die Buchliste nicht leer ist, damit man das manuelle Anlegen der Bücher bei jedem Seitenrefresh gespart hat.
+
+Schreibe eine getDummyBookData-Funktion in helper_specific.ts welche 3 Bücher zurückliefert und befülle die Liste beim Seitenaufruf initial mit dem Ergebnis
+
+Erweitere die Liste/-Einträge um einen Eventhandler für das Click Ereignis, selektiere dann das geklickte Element (grafisch, d.h. CSS Klasse ekSelected hinzufügen), aktualisiere dann das Eingabefeld mit dem Titel des geklickten Eintrages und schalte den Delete Button frei.
+D.h. Erweitere die Maske von oben um einen Delete Button, der nur im „Edit“ Modus klickbar sein soll.
+Falls der Benutzer den Add Button klickt (oder Return), soll der selektierte Eintrag aktualisiert werden und die Selektion aufgehoben werden
+
+Hinweis: In der library.less muss nun der CSS Selector ekSelected angelegt und befüllt werden
+
+Der Zähler und die Buchliste sollen bei Löschen / Editieren jeweils aktualisiert werden.
+
+Alle todos wenn möglich bearbeiten (siehe auch TODO Erweiterung in der linke VS Code Sidebar) und entfernen, Project scannen und Issues entfernen.
+
+ 
+3.5	Zwischenstand
+Nun sollte Ihr Programm in der Lage sein aus einem Eingabefeld Strings auszulesen, diese in einer Liste anzuzeigen sowie die Anzahl der Einträge mitzuzählen.
+ 
