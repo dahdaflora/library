@@ -1,0 +1,176 @@
+namespace ek {
+
+    export interface ILibraryPageParams extends IPageParams {
+    }
+    @page({
+        scrollToTop: true,
+        swipeDownRefresh: true,
+    })
+    export class LibraryPage extends PageSpecific<ILibraryPageParams> {
+        // #region page header
+        public static readonly PAGE_NAME = 'library';
+        public static doPageChange(params?: ILibraryPageParams): void {
+            super.doPageChange(params);
+        }
+
+        public constructor() {
+            super(LibraryPage.PAGE_NAME);
+        }
+        // #endregion page header
+        // #region page components
+        protected fAdd: EkButton = null;
+        protected fTitles: EkSimpleComponent = null;
+        protected fTitle: EkInputField;
+        protected fEdit: EkButton = null;
+        protected fAddButton: EkButton = null;
+        protected rCounter: ReactDOMRenderComponentType = null;
+
+        // #endregion page components
+
+        // #region page state
+        protected titles: string[];
+        protected title: string;
+
+        // #endregion page state
+
+        protected initStates(): void {
+            this.titles = Helper.getDummyBookData();
+        }
+        protected cleanupStates(): void {
+            this.titles = Helper.getDummyBookData();
+        }
+        protected initComponents(): void {
+            super.initComponents();
+
+            this.fAddButton = this.createButton('add', this.onAddButton);
+            this.fTitle = this.createInputField('title');
+            this.fTitle.addEventListener('keyup', this.onKeyUp);
+            this.fTitles = this.createComponent('titles');
+            this.fEdit = this.createButton('edit', this.editTitle);
+            this.initCounter();
+        }
+
+        protected initCounter(): void {
+            const properties: IRCounterProperties = {
+                count: 0,
+                skeleton: true,
+            };
+
+            this.rCounter = this.renderReactComponent('count', RCounter, properties);
+        }
+
+        protected initUI(): void {
+            const titles = Helper.getDummyBookData();
+            for (let i = 0; i < titles.length; i++) {
+                const title = titles[i];
+                const item = $('<li> <i class="fas fa-book"></i> &nbsp &nbsp ' + title + '&nbsp &nbsp &nbsp </li>');
+                const editButton = $(' <a href=#><i class="far fa-edit" ></i></a>');
+                const deleteButton = $('<a href=#> <i class="fas fa-trash-alt" > </i></a >');
+                item.append(editButton);
+                item.append(deleteButton);
+                this.fTitles.append(item);
+                editButton.on('click', () => this.onEditTitle(title));
+                deleteButton.on('click', () => this.onDeleteTitle(title, item));
+            }
+
+        }
+
+        /*
+        todo verwenden, falls die oberflaeche aufgrund eines ws aufrufs oder sonst wie aktualisiert werden muss
+        protected refreshUI(): void {
+            // todo oberflaeche aktualisieren
+        }
+        */
+
+        protected refreshCounter(skeleton: boolean): void {
+            const state: IRCounterState = {
+                count: this.titles.length,
+                skeleton,
+            };
+
+            this.rCounter.setState(state);
+        }
+        protected refreshTitles(newTitle: string, item: JQuery): void {
+            item.title = newTitle;
+        }
+
+        protected setSkeletonCounter(skeleton: boolean): void {
+            const state: IRCounterState = {
+                skeleton,
+            };
+            this.rCounter.setState(state);
+        }
+
+        protected cleanupUI(): void {
+            super.cleanupUI();
+
+        }
+
+        protected onKeyUp = (event: KeyboardEvent): void => {
+            if (Helper.isEnterKey(event)) {
+                this.onAddButton();
+            }
+        };
+
+        protected onAddButton = (): void => {
+            const title = this.fTitle.value;
+            if (this.checkInput()) {
+                const editButton = $(' <a href=#><i class="far fa-edit" ></i></a>');
+                const deleteButton = $('<a href=#> <i class="fas fa-trash-alt" > </i></a >');
+                const item = $('<li><i class="fas fa-book"></i> &nbsp &nbsp ' + title + '&nbsp &nbsp &nbsp  </li>');
+                ;
+                item.append(editButton);
+                editButton.on('click', () => this.onEditTitle(title));
+                item.append(deleteButton);
+                deleteButton.on('click', () => this.onDeleteTitle(title, item));
+
+                this.fTitles.append(item);
+                this.fTitle.empty();
+                this.fTitle.focus();
+                this.titles.push(title);
+                if (this.titles.length !== 0) {
+                    this.refreshCounter(false);
+                }
+
+            }
+        };
+
+        protected onDeleteTitle = (title: string, item: JQuery): void => {
+
+            const confirmation = confirm(this.localize('delete'));
+
+            if (confirmation) {
+                this.titles.splice(this.titles.indexOf(title), 1);
+                item.remove();
+                this.refreshCounter(false);
+            }
+        };
+        protected onEditTitle = (title: string): void => {
+            this.fTitle = this.createInputField('title');
+            this.fTitle.value = title;
+            this.title = title;
+            this.editTitle();
+            console.log(this.titles);
+        };
+        protected editTitle = (): void => {
+            const newTitle = this.fTitle.value;
+            const item = $('<li><i class="fas fa-book"></i> &nbsp &nbsp ' + this.title + '&nbsp &nbsp &nbsp  </li>');
+            if (this.checkInput()) {
+                this.titles.splice(this.titles.indexOf(this.title), 1, newTitle);
+                console.log(this.titles);
+                this.refreshTitles(newTitle, item);
+            }
+
+        };
+        protected _checkInput(msg: string[]): void {
+            const title = this.fTitle.value;
+            if (Helper.isStringEmpty(title)) {
+                msg.push(this.localize('kein_eingabe_gefunden'));
+            }
+            if (this.titles.indexOf(title) !== -1) {
+                msg.push(this.localize('existiert_schon'));
+            }
+        }
+
+    }
+}
