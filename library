@@ -31,6 +31,8 @@ namespace ek {
         protected titles: string[];
         protected title: string;
 
+        protected item: string[];
+
         // #endregion page state
 
         protected initStates(): void {
@@ -46,7 +48,7 @@ namespace ek {
             this.fTitle = this.createInputField('title');
             this.fTitle.addEventListener('keyup', this.onKeyUp);
             this.fTitles = this.createComponent('titles');
-            this.fEdit = this.createButton('edit', this.editTitle);
+            this.fEdit = this.createButton('edit', this.onTitleEdit);
             this.initCounter();
         }
 
@@ -63,14 +65,16 @@ namespace ek {
             const titles = Helper.getDummyBookData();
             for (let i = 0; i < titles.length; i++) {
                 const title = titles[i];
-                const item = $('<li> <i class="fas fa-book"></i> &nbsp &nbsp ' + title + '&nbsp &nbsp &nbsp </li>');
-                const editButton = $(' <a href=#><i class="far fa-edit" ></i></a>');
-                const deleteButton = $('<a href=#> <i class="fas fa-trash-alt" > </i></a >');
+                const item = $('<li> <i class="fas fa-book"></i> &nbsp &nbsp ' + title + '&nbsp  &nbsp &nbsp </li>');
+                const editButton = $(' <a href=#> <i class="far fa-edit" ></i></a>');
+                const deleteButton = $('<a href=#><i class="fas fa-trash-alt" > </i></a >');
                 item.append(editButton);
                 item.append(deleteButton);
+                item.removeClass('ekSelekted');
                 this.fTitles.append(item);
                 editButton.on('click', () => this.onEditTitle(title));
                 deleteButton.on('click', () => this.onDeleteTitle(title, item));
+                item.on('click', () => this.onClick(title, item));
             }
 
         }
@@ -89,9 +93,6 @@ namespace ek {
             };
 
             this.rCounter.setState(state);
-        }
-        protected refreshTitles(newTitle: string, item: JQuery): void {
-            item.title = newTitle;
         }
 
         protected setSkeletonCounter(skeleton: boolean): void {
@@ -117,17 +118,18 @@ namespace ek {
             if (this.checkInput()) {
                 const editButton = $(' <a href=#><i class="far fa-edit" ></i></a>');
                 const deleteButton = $('<a href=#> <i class="fas fa-trash-alt" > </i></a >');
-                const item = $('<li><i class="fas fa-book"></i> &nbsp &nbsp ' + title + '&nbsp &nbsp &nbsp  </li>');
-                ;
+                const item = $('<li><i class="fas fa-book"></i> &nbsp &nbsp' + title + '&nbsp &nbsp &nbsp </li>');
                 item.append(editButton);
                 editButton.on('click', () => this.onEditTitle(title));
                 item.append(deleteButton);
+                item.has;
                 deleteButton.on('click', () => this.onDeleteTitle(title, item));
-
+                item.on('click', () => this.onClick(title, item));
                 this.fTitles.append(item);
                 this.fTitle.empty();
                 this.fTitle.focus();
                 this.titles.push(title);
+                this.item.push(item.tostring());
                 if (this.titles.length !== 0) {
                     this.refreshCounter(false);
                 }
@@ -142,26 +144,57 @@ namespace ek {
             if (confirmation) {
                 this.titles.splice(this.titles.indexOf(title), 1);
                 item.remove();
-                this.refreshCounter(false);
             }
         };
         protected onEditTitle = (title: string): void => {
             this.fTitle = this.createInputField('title');
             this.fTitle.value = title;
             this.title = title;
-            this.editTitle();
+            this.onTitleEdit();
             console.log(this.titles);
         };
-        protected editTitle = (): void => {
+        protected onTitleEdit = (): void => {
             const newTitle = this.fTitle.value;
-            const item = $('<li><i class="fas fa-book"></i> &nbsp &nbsp ' + this.title + '&nbsp &nbsp &nbsp  </li>');
             if (this.checkInput()) {
                 this.titles.splice(this.titles.indexOf(this.title), 1, newTitle);
                 console.log(this.titles);
-                this.refreshTitles(newTitle, item);
+                this.changeTitle();
+            }
+        };
+        protected changeTitle = (): void => {
+            this.fTitles.removeContents();
+            for (let i = 0; i < this.titles.length; i++) {
+                const title = this.titles[i];
+                const item = $('<li> <i class="fas fa-book"></i> &nbsp &nbsp ' + title + '&nbsp &nbsp &nbsp </li>');
+                const editButton = $(' <a href=#><i class="far fa-edit" ></i></a>');
+                const deleteButton = $('<a href=#> <i class="fas fa-trash-alt" > </i></a >');
+                item.append(editButton);
+                item.append(deleteButton);
+                this.fTitles.append(item);
+                editButton.on('click', () => this.onEditTitle(title));
+                deleteButton.on('click', () => this.onDeleteTitle(title, item));
+            }
+        };
+
+        protected onClick = (title: string, item: JQuery): void => {
+            this.fTitle = this.createInputField('title');
+            this.fTitle.value = title;
+            this.title = title;
+
+            for (const i of this.item) {
+                // i.removeClass('')
             }
 
+            if (item.hasClass('ekSelected')) {
+
+                item.removeClass('ekSelected');
+            } else {
+                item.addClass('ekSelected');
+            }
+            $('.deleteButton').prop('disabled, false');
+            $('.editButton').prop('disabled, true');
         };
+
         protected _checkInput(msg: string[]): void {
             const title = this.fTitle.value;
             if (Helper.isStringEmpty(title)) {
